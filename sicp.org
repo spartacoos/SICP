@@ -187,7 +187,188 @@ Nested: (* x (+ a1 a2))
 Operands can themselves be combinations — this is the recursive power of the notation.
 #+END_EXAMPLE
 
-Lisp uses what is known as prefix notation. Meaning, the operator is written to the left of the operands (convention). Notice that it's fully parenthesized so it's unambigous.
+Prefix Notation & Syntax Trees
+
+In Lisp, the operator is always written *left of its operands* — this is
+prefix notation. Every combination is *fully parenthesized*, making it
+unambiguous, unlike math where parentheses are optional/decorative.
+
+In Lisp, parentheses mean exactly one thing: /this is a combination/.
+The best way to internalize this is to think of them as syntax trees:
+
+#+BEGIN_EXAMPLE
+(* (+ 2 3) (- 8 1))
+
+          *
+         / \
+        +   -
+       / \ / \
+      2  3 8  1
+#+END_EXAMPLE
+
+Each node is an operator; its children are its operands. The parenthesized
+expression and the tree are /the same thing/ — just two notations for an
+identical structure. There is no ambiguity because the tree has only one
+valid reading.
+
+Expressions & Definitions
+
+#+begin_src racket :lang sicp :results output
+3
+(+ 3 4 8)
+(+ (* 3 (+ 7 19.5)) 4)
+(+ (* 3 5) (* 47 (- 20 6.8)) 12)
+#+end_src
+
+#+RESULTS:
+: 3
+: 15
+: 83.5
+: 647.4
+
+*Naming values* with ~define~:
+
+#+begin_src racket :lang sicp :results output
+(define A (* 5 5))
+(* A A)
+(define B (+ A (* 5 A)))
+B
+(+ A (/ B 5))
+#+end_src
+
+#+RESULTS:
+: 625
+: 150
+: 55
+
+Defining Procedures
+
+#+begin_src racket :lang sicp :results output
+(define (square x) (* x x))          ; syntactic sugar for:
+(define square (lambda (x) (* x x))) ; a name bound to a procedure
+(define (average x y) (/ (+ x y) 2))
+(define (mean-square x y) (average (square x) (square y)))
+(mean-square 2 3)
+#+end_src
+
+#+RESULTS:
+: 13/2
+
+*No distinction between built-ins and your own abstractions* — ~square~
+is usable exactly as if the language had always had it.
+
+Case Analysis
+
+#+BEGIN_EXAMPLE
+       ⎧ -x   if x < 0
+|x| =  ⎨  0   if x = 0
+       ⎩  x   if x > 0
+#+END_EXAMPLE
+
+#+begin_src racket :lang sicp :results output
+(define (abs x)
+  (cond ((< x 0) (- x))   ; general: n branches
+        ((= x 0) 0)
+        ((> x 0) x)))
+
+(define (abs x)
+  (if (< x 0) (- x) x))   ; sugar for the single-predicate case
+#+end_src
+  
+Recursion & Block Structure
+
+This covers the majority of Lisp syntax we'll need — and if you're coming
+from C/Fortran, that may be surprising: no ~while~, no ~for~. We don't
+need them. Iteration emerges naturally from recursion.
+
+Consider Heron of Alexandria's sqrt algorithm:
+1. Make a guess G
+2. Improve it: average G and X/G
+3. Repeat until good enough
+4. Start with G = 1
+
+#+begin_src racket :lang sicp :results output
+(define (improve guess x)   (average guess (/ x guess)))
+(define (good-enough? guess x) (< (abs (- (square guess) x)) .001))
+(define (try guess x)
+  (if (good-enough? guess x)
+      guess
+      (try (improve guess x) x)))
+(define (sqrt x) (try 1 x))
+#+end_src
+
+~try~ is a /recursive definition/ — it is defined in terms of itself.
+The call tree and iteration look like:
+
+#+BEGIN_EXAMPLE
+       SQRT
+         |
+        TRY <─────────┐
+       /   \          │
+      v     v         │
+ GOOD-    IMPROVE ────┘
+ENOUGH?      |
+             v
+           AVERAGE
+
+(try 1.5 2)
+  → (try (average 1.5 (/ 2 1.5)) 2)
+  → (try 1.41667 2)
+  → ...
+  → 1.41421568
+#+END_EXAMPLE
+
+Block Structure
+
+We can package ~try~, ~good-enough?~, and ~improve~ /inside/ ~sqrt~ —
+hiding them from the outside world:
+
+#+begin_src racket :lang sicp :results output
+(define (sqrt x)
+  (define (improve guess)     (average guess (/ x guess)))
+  (define (good-enough? guess)(< (abs (- (square guess) x)) .001))
+  (define (try guess)
+    (if (good-enough? guess)
+        guess
+        (try (improve guess))))
+  (try 1))
+#+end_src
+
+~x~ is shared by all inner procedures via /lexical scoping/ — no need to
+pass it around. George can use ~sqrt~ as a black box without knowing
+~try~, ~improve~, or ~good-enough?~ exist. This is what we mean by
+*means of abstraction*.
+
+Summary: What Lisp Gives Us
+
+#+BEGIN_EXAMPLE
++──────────────────+──────────────────+───────────────+
+|                  | PROCEDURES       | DATA          |
++──────────────────+──────────────────+───────────────+
+| PRIMITIVE        | + * < =          | 23  1.738     |
+| ELEMENTS         |                  |               |
++──────────────────+──────────────────+───────────────+
+| MEANS OF         | () cond if       |               |
+| COMBINATION      | lambda           |               |
++──────────────────+──────────────────+───────────────+
+| MEANS OF         | define           |               |
+| ABSTRACTION      | block structure  |               |
++──────────────────+──────────────────+───────────────+
+#+END_EXAMPLE
+
+Finally, note the crucial distinction between naming a /value/ vs. a
+/procedure/:
+
+#+begin_src racket :lang sicp :results output
+(define A (* 5 5))    ; evaluated immediately → 25
+(define (D) (* 5 5))  ; a procedure, not yet called
+
+A    ; → 25
+D    ; → #<procedure:D>
+(D)  ; → 25
+#+end_src
+
+~A~ is a number. ~D~ is a procedure that /produces/ a number when called.
 
 
 
