@@ -1,0 +1,27 @@
+# Emacs
+*~
+\#*\#
+.#*
+auto-save-list/
+.eldev/
+
+# Org export/build artifacts
+*.tex
+*.aux
+*.log
+*.out
+*.toc
+*.pdf
+*.html
+
+# Racket compiled files
+compiled/
+*.zo
+*.dep
+
+# OS
+.DS_Store
+
+# Keep generated images if useful for notes.
+# Ignore this if you prefer reproducible-only outputs.
+# images/*.png

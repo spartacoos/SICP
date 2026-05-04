@@ -1,0 +1,127 @@
+#+title: SICP Notes
+#+author: Carlo
+#+startup: overview inlineimages
+#+property: header-args:racket :results value
+#+property: header-args:scheme :cmd "racket" :results value :session sicp
+
+* Setup Check
+
+Run this block with =C-c C-c=.
+
+#+begin_src shell :results output
+pwd
+racket --version
+#+end_src
+
+* Chapter 1 — Building Abstractions with Procedures
+
+** Hello SICP
+
+This block uses =#lang sicp= via ob-racket's =:lang sicp= header.
+
+#+begin_src racket :lang sicp
+(define (square x)
+  (* x x))
+
+(square 5)
+#+end_src
+
+** Sum of Squares
+
+#+begin_src racket :lang sicp
+(define (square x)
+  (* x x))
+
+(define (sum-of-squares x y)
+  (+ (square x) (square y)))
+
+(define (f a)
+  (sum-of-squares (+ a 1) (* a 2)))
+
+(f 5)
+#+end_src
+
+Expected result:
+
+#+begin_example
+136
+#+end_example
+
+** Printed Output
+
+Use =:results output= when the block prints instead of returning a final value.
+
+#+begin_src racket :lang sicp :results output
+(display "hello from SICP")
+(newline)
+(display (+ 20 22))
+(newline)
+#+end_src
+
+* Pictures
+
+** Simple Inline Picture With Racket pict
+
+This is the reliable path for rendering pictures inside Org.
+
+#+begin_src racket :lang racket :results file graphics :file images/hello-pict.png
+(require pict
+         file/convertible)
+
+(define drawing
+  (hc-append
+   24
+   (circle 80)
+   (rectangle 120 80)
+   (text "SICP" null 32)))
+
+(send (pict->bitmap drawing) save-file "images/hello-pict.png" 'png)
+
+"images/hello-pict.png"
+#+end_src
+
+After running the block, toggle inline images:
+
+#+begin_example
+C-c C-x C-v
+#+end_example
+
+** SICP Picture-Language Placeholder
+
+Use this section once you reach the picture language. Keep book-faithful
+SICP code in =#lang sicp= blocks. If =sicp-pict= gives you a direct way
+to save painters to files, use the same =:results file :file images/...=
+pattern.
+
+#+begin_src racket :lang sicp :results output
+(require sicp-pict)
+
+(display "sicp-pict loaded")
+(newline)
+#+end_src
+
+* Tangling
+
+This block tangles to a standalone Racket file.
+
+#+begin_src racket :lang sicp :tangle racket/chapter-1-demo.rkt
+#lang sicp
+
+(define (square x)
+  (* x x))
+
+(display (square 12))
+(newline)
+#+end_src
+
+Run tangling with:
+
+#+begin_example
+C-c C-v C-t
+#+end_example
+
+Then run:
+
+#+begin_src shell :results output
+racket racket/chapter-1-demo.rkt
+#+end_src
