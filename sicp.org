@@ -15,15 +15,20 @@ pwd
 racket --version
 #+end_src
 
+#+RESULTS:
+: /Users/spartacoosh/Code/SICP/SICP
+: Welcome to Racket v9.1 [cs].
+
 ** Hello SICP
 
 #+begin_src racket :lang sicp :results output
-(define (square x)
-  (* x x))
+(define (square x) (* x x))
 
-(display (square 5))
-(newline)
+(display (square 5)) (newline)
 #+end_src
+
+#+RESULTS:
+: 25
 
 ** Inline Picture Rendering
 
@@ -44,6 +49,9 @@ racket --version
 "images/hello-pict.png"
 #+end_src
 
+#+RESULTS:
+[[file:images/hello-pict.png]]
+
 ** sicp-pict Availability
 
 #+begin_src racket :lang racket :results output
@@ -52,6 +60,9 @@ racket --version
 (display "sicp-pict loaded")
 (newline)
 #+end_src
+
+#+RESULTS:
+: sicp-pict loaded
 
 * Book Notes
 
@@ -86,6 +97,114 @@ Notes here.
 ** Lecture 1A — Overview and Introduction to Lisp
 
 *** Notes
+Computer Science = not about science, not about computers. Similar to
+how geometry is not really about surverying instruments or earth
+measurement.  How to identify when something is an instance of a more
+general thing (i.e. fixed point finding of f(y) = avg(y, x/y) ==
+method for finding square roots).
+
+**** Black-Box Abstraction
+
+Primitive Objects
+- Primitive procedures
+- Primitive data
+
+Means of Combination
+- Procedure composition
+- Construction of compund data
+
+Means of Abstraction
+- Procedure definition
+- Simple data abstraction
+
+Capturing Common Patterns
+- High-order procedures
+- Data as procedures
+
+Linear Combinations
+
+The abstract pattern: ~(* x (+ a1 a2 ...))~ — scale the sum of things.
+
+This single expression captures something profound. Whether =a1=, =a2= are
+*numbers*, *vectors*, *polynomials*, or *electrical signals* being summed and
+amplified — the /shape/ of the operation is identical. This is the
+general notion of a linear combination, and a powerful language should
+express that generality directly.
+
+The catch: the /concrete machinery/ of addition and multiplication
+differs across types. Somewhere, something must know how to add
+polynomials vs. vectors vs. signals. The design question is: *where
+does that knowledge live, and how do we make it extensible?* If George
+invents a new algebraic type tomorrow, can we support it without
+breaking everything?
+
+This forces us toward two powerful techniques:
+
+*1. Conventional interfaces* — agreed-upon contracts for hooking
+heterogeneous things together. /(Topic 2)/
+
+*2. Language-oriented design* — rather than patching a language, /design
+a new one/ that foregrounds the aspects of the problem you care about
+while suppressing irrelevant detail. /(Topic 3)/
+
+To make this concrete, we'll build a Lisp interpreter — a beautifully
+recursive process where ~eval~ and ~apply~ chase each other's tails. This
+leads us to *metalinguistic abstraction*: the idea that designing
+languages /is/ the abstraction, bottoming out at the Y combinator — the
+strange loop that gives a language its notion of infinity.
+
+
+#+begin_src racket :lang sicp :results output
+(* 2 (+ 1 3))
+#+end_src
+
+#+RESULTS:
+: 8
+
+Elements of a Language
+
+When evaluating a new language, ask three questions:
+
+1. *Primitive elements* — what are the atomic building blocks?
+2. *Means of combination* — how do you build compound things from simpler ones?
+3. *Means of abstraction* — how do you treat compound things as new primitives?
+
+The /wrong/ framing: "how many characters to invert a matrix?"
+The /right/ framing: "if matrices weren't built in, could I construct them?
+and could I then abstract over them as if they were primitive?"
+
+#+BEGIN_EXAMPLE
+Combination: (+   3 17.4 5)
+              |   |______|
+           operator operands
+
+Nested: (* x (+ a1 a2))
+         | |  |______|
+         | |  combination (as operand)
+         | operand
+         operator
+
+Operands can themselves be combinations — this is the recursive power of the notation.
+#+END_EXAMPLE
+
+Lisp uses what is known as prefix notation. Meaning, the operator is written to the left of the operands (convention). Notice that it's fully parenthesized so it's unambigous.
+
+
+
+**** Conventional Interfaces 
+T
+Conventional Interfaces
+
+Generic Operations 
+
+Large-scale Structure and Modularity 
+
+Object-Oriented Programming 
+
+Operations on Aggregates ("Streams")
+
+
+**** Metalinguistic Abstraction 
 
 *** Scratch
 
@@ -110,12 +229,9 @@ Use ordinary Racket =pict= for Org-inline image generation.
 #+begin_src racket :lang racket :results file graphics :file images/basic-pict.png
 (require pict)
 
-(define drawing
-  (cc-superimpose
-   (filled-rectangle 300 140 #:color "white" #:draw-border? #f)
-   (hc-append 20
-              (circle 80)
-              (rectangle 100 80))))
+(define drawing (cc-superimpose (filled-rectangle 300 140 #:color
+"white" #:draw-border? #f) (hc-append 20 (circle 80) (rectangle 100
+80))))
 
 (send (pict->bitmap drawing) save-file "images/basic-pict.png" 'png)
 
@@ -129,6 +245,5 @@ Temporary experiments go here.
 ** Scratch
 
 #+begin_src racket :lang sicp :results output
-(display "scratch")
-(newline)
+(display "scratch") (newline)
 #+end_src
